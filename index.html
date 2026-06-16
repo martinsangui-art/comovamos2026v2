@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCASAL – Cómo Vamos · BsAs</title>
+<style>
+:root{
+  --bg:#eaecf4;--surface:#fff;
+  --dark:#1B2A6B;--dark2:#0f1d4a;
+  --ucasal-red:#C8102E;--ucasal-navy:#1B2A6B;
+  --green:#2d6a4f;--green2:#52b788;--green-bg:#f0faf4;
+  --amber:#b45309;--amber2:#f59e0b;--amber-bg:#fffbeb;
+  --red:#C8102E;--red2:#e8304a;--red-bg:#fff1f2;
+  --blue:#1B2A6B;--blue-bg:#eef0f8;--blue-border:#b8c0e0;
+  --purple:#7c3aed;--purple2:#a78bfa;
+  --border:#e5e7eb;--muted:#6b7280;--text:#111827;
+  --radius:12px;--shadow:0 1px 4px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#1B2A6B 0%,#0f1d4a 100%);color:#fff;display:flex;align-items:stretch;box-shadow:0 2px 12px rgba(0,0,0,.25);position:sticky;top:0;z-index:100}
+.header-stripe{width:6px;background:#C8102E;flex-shrink:0}
+.header-inner{display:flex;align-items:center;gap:16px;padding:14px 24px;flex:1}
+.header-logo{width:44px;height:44px;background:rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.header-title{flex:1}
+.header-title h1{font-size:16px;font-weight:700;margin-bottom:2px}
+.header-title p{font-size:11px;opacity:.5}
+.header-badges{display:flex;gap:8px;flex-shrink:0}
+.hbadge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 14px;text-align:center;cursor:default}
+.hbadge .hb-n{font-size:15px;font-weight:700;line-height:1}
+.hbadge .hb-l{font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.hbadge.activa{border-color:rgba(82,183,136,.4);background:rgba(82,183,136,.15)}
+
+/* LOADING */
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid #e5e7eb;border-top-color:#1B2A6B;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--muted)}
+
+/* APP CONTENT */
+.app{max-width:100%;padding:20px 28px}
+
+/* CAMPANA SELECTOR */
+.camp-bar{background:var(--surface);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.camp-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.camp-btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--muted);transition:.15s}
+.camp-btn:hover{border-color:#1B2A6B;color:#1B2A6B}
+.camp-btn.active{background:#1B2A6B;color:#fff;border-color:#1B2A6B}
+.camp-btn.cerrada.active{background:#6b7280;border-color:#6b7280}
+.camp-sep{flex:1}
+
+/* TOOLBAR */
+.toolbar{background:var(--surface);border-radius:var(--radius);padding:10px 16px;margin-bottom:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+.toolbar input[type=date],.toolbar input[type=text],.toolbar select{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);background:#fff;outline:none;transition:.15s}
+.toolbar input[type=text]{width:170px}
+.vsep{width:1px;height:24px;background:var(--border);flex-shrink:0}
+.btn{padding:7px 13px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover:not(:disabled){background:#1b4332}
+.btn-gray{background:#f1f5f9;color:#374151;border:1.5px solid var(--border)}.btn-gray:hover:not(:disabled){background:#e2e8f0}
+.btn-excel{background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0}.btn-excel:hover:not(:disabled){background:#15803d;color:#fff}
+.btn-blue{background:#1B2A6B;color:#fff}.btn-blue:hover:not(:disabled){background:#0f1d4a}
+.btn-red{background:var(--red-bg);color:var(--red);border:1.5px solid #fecdd3}.btn-red:hover:not(:disabled){background:var(--red);color:#fff}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:750px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{background:var(--surface);border-radius:10px;padding:13px 14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.s-total::before{background:linear-gradient(90deg,var(--dark),#0f3460)}
+.s-env::before{background:linear-gradient(90deg,var(--green),var(--green2))}
+.s-pend::before{background:linear-gradient(90deg,var(--red),var(--red2))}
+.s-prog::before{background:linear-gradient(90deg,var(--amber),var(--amber2))}
+.s-noav::before{background:linear-gradient(90deg,var(--purple),var(--purple2))}
+.stat-n{font-size:26px;font-weight:800;line-height:1;margin:4px 0 3px}
+.s-total .stat-n{color:var(--dark)}.s-env .stat-n{color:var(--green)}
+.s-pend .stat-n{color:var(--red)}.s-prog .stat-n{color:var(--amber)}
+.s-noav .stat-n{color:var(--purple)}
+.stat-l{font-size:12px;font-weight:600;color:var(--text)}
+.stat-s{font-size:10px;color:var(--muted);margin-top:1px}
+
+/* PROGRESS BAR */
+.pb-wrap{background:var(--surface);border-radius:10px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.pb-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.pb-track{background:#e5e7eb;border-radius:20px;height:8px;overflow:hidden}
+.pb-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--green),var(--green2));transition:width .7s cubic-bezier(.4,0,.2,1)}
+
+/* SEDE LIST */
+.sede-list{display:flex;flex-direction:column;gap:5px;margin-bottom:24px}
+.item{background:var(--surface);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);transition:all .2s}
+.item:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.item.done{box-shadow:none;outline:2px solid var(--green2);transform:none}
+.item.done .ihead{background:var(--green)}
+.ihead{background:var(--dark);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.i-cod{font-size:10px;background:rgba(255,255,255,.1);padding:2px 7px;border-radius:20px;flex-shrink:0;opacity:.7}
+.i-name{font-weight:700;font-size:13px;flex:1}
+.i-noav{font-size:10px;background:rgba(245,158,11,.25);color:#fef3c7;padding:2px 7px;border-radius:20px;font-weight:700;flex-shrink:0}
+.i-done{font-size:10px;background:rgba(255,255,255,.18);color:#fff;padding:2px 7px;border-radius:20px;font-weight:700;display:none;flex-shrink:0}
+.item.done .i-done{display:inline}
+.i-chevron{font-size:12px;opacity:.5;transition:transform .2s;flex-shrink:0}
+.item.open .i-chevron{transform:rotate(180deg)}
+.ibody{display:none;padding:12px 14px;border-top:1px solid #f1f5f9}
+.item.open .ibody{display:block}
+.i-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.i-m{text-align:center;padding:8px;background:#f8fafc;border-radius:8px}
+.i-m-n{font-size:18px;font-weight:800;line-height:1}
+.i-m-l{font-size:10px;color:var(--muted);margin-top:2px}
+.m-green .i-m-n{color:var(--green)}.m-amber .i-m-n{color:var(--amber)}.m-red .i-m-n{color:var(--red)}.m-blue .i-m-n{color:var(--blue)}
+.i-pbar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-bottom:10px}
+.i-pfill{height:100%;border-radius:3px;transition:width .5s}
+.pfill-green{background:linear-gradient(90deg,var(--green),var(--green2))}
+.pfill-amber{background:linear-gradient(90deg,var(--amber),var(--amber2))}
+.pfill-red{background:linear-gradient(90deg,var(--red),var(--red2))}
+.i-actions{display:flex;gap:6px;flex-wrap:wrap}
+.i-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.tag-amber{background:var(--amber-bg);color:var(--amber)}
+.tag-red{background:var(--red-bg);color:var(--red)}
+.tag-noav{background:#ede9fe;color:#5b21b6}
+.tag-gray{background:#f1f5f9;color:var(--muted)}
+
+/* NUEVA SEMANA PANEL */
+.nueva-panel{background:var(--surface);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;box-shadow:var(--shadow);border-top:3px solid #1B2A6B;display:none}
+.nueva-panel.visible{display:block}
+.nueva-panel h3{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px}
+.nueva-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:12px;max-height:400px;overflow-y:auto}
+.nueva-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f8fafc;border-radius:8px;border:1.5px solid var(--border)}
+.nueva-item label{font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nueva-item input[type=number]{width:60px;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-weight:700;text-align:center}
+.nueva-item input[type=number]:focus{border-color:#1B2A6B;outline:none}
+.nueva-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nueva-fecha{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px}
+
+/* RESUMEN */
+.resumen-panel{background:var(--surface);border-radius:var(--radius);padding:14px 18px;margin-bottom:14px;box-shadow:var(--shadow);border-left:4px solid #1B2A6B;display:none}
+.resumen-panel.visible{display:block}
+.resumen-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.resumen-body{font-size:13px;line-height:1.7;color:var(--text)}
+
+/* GRUPOS */
+.grupo-header{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;margin:10px 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.g-green{background:var(--green-bg);color:var(--green)}
+.g-amber{background:var(--amber-bg);color:var(--amber)}
+.g-red{background:var(--red-bg);color:var(--red)}
+.g-noav{background:#ede9fe;color:#5b21b6}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1B2A6B;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+
+/* MODAL ENVIO */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center}
+.modal-bg.visible{display:flex}
+.modal{background:#fff;border-radius:16px;padding:24px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:8px}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.modal-list{max-height:200px;overflow-y:auto;margin-bottom:16px;font-size:12px;border:1px solid var(--border);border-radius:8px}
+.modal-list-item{padding:6px 12px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between}
+.modal-list-item:last-child{border-bottom:none}
+
+/* PROGRESS envio */
+.envio-progress{margin:12px 0;background:#f1f5f9;border-radius:8px;overflow:hidden;height:8px}
+.envio-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));transition:width .3s}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-stripe"></div>
+  <div class="header-inner">
+    <div class="header-logo">🎓</div>
+    <div class="header-title">
+      <h1>UCASAL – Cómo Vamos · BsAs</h1>
+      <p>Dirección Operativa SEAD · Coordinación Nacional de Sedes · Zona Buenos Aires</p>
+    </div>
+    <div class="header-badges">
+      <div class="hbadge"><div class="hb-n" id="hbSedes">—</div><div class="hb-l">Sedes</div></div>
+      <div class="hbadge"><div class="hb-n" id="hbDate">—</div><div class="hb-l">Último corte</div></div>
+      <div class="hbadge activa" id="hbCampBadge"><div class="hb-n" id="hbCamp">—</div><div class="hb-l">Campaña activa</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Conectando con Google Sheets…</div>
+</div>
+
+<!-- APP (oculto hasta que carga) -->
+<div class="app" id="appContent" style="display:none">
+
+  <!-- SELECTOR DE CAMPAÑA -->
+  <div class="camp-bar">
+    <span class="camp-label">Campaña</span>
+    <div id="campBtns"></div>
+    <div class="camp-sep"></div>
+    <button class="btn btn-blue" onclick="toggleNuevaSemana()" id="btnNueva">+ Nueva semana</button>
+  </div>
+
+  <!-- PANEL NUEVA SEMANA -->
+  <div class="nueva-panel" id="nuevaPanel">
+    <h3>📅 Agregar corte semanal — <span id="nuevaCampNombre"></span></h3>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <label style="font-size:12px;font-weight:700;color:var(--muted)">Fecha del corte:</label>
+      <input type="date" class="nueva-fecha" id="nuevaFecha">
+      <button class="btn btn-gray" onclick="copiarDeUltimaSemana()">Copiar valores de semana anterior</button>
+    </div>
+    <div class="nueva-grid" id="nuevaGrid"></div>
+    <div class="nueva-actions">
+      <button class="btn btn-green" onclick="guardarNuevaSemana()" id="btnGuardarSemana">💾 Guardar en Sheets</button>
+      <button class="btn btn-gray" onclick="toggleNuevaSemana()">Cancelar</button>
+      <span style="font-size:11px;color:var(--muted)" id="nuevaStatus"></span>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar" id="toolbarRow">
+    <select id="filtroEstado" onchange="renderSedes()">
+      <option value="">Todas las sedes</option>
+      <option value="green">✅ En objetivo (≥50%)</option>
+      <option value="amber">⚠️ En progreso (1–49%)</option>
+      <option value="red">❌ Sin ingresos</option>
+      <option value="noav">🟠 Sin avance vs anterior</option>
+      <option value="pend">📋 Pendientes de envío</option>
+      <option value="sent">✔ Enviadas</option>
+    </select>
+    <input type="text" id="busqueda" placeholder="Buscar sede…" oninput="renderSedes()">
+    <div class="vsep"></div>
+    <button class="btn btn-gray" onclick="copiarSeleccion()">📋 Copiar selección</button>
+    <button class="btn btn-excel" onclick="exportarExcel()">⬇ Excel</button>
+    <button class="btn btn-gray" onclick="toggleResumen()">📄 Resumen</button>
+    <button class="btn btn-green" id="btnEnviar" onclick="abrirModalEnvio()">🚀 Enviar emails</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats" id="statsRow">
+    <div class="stat s-total"><div class="stat-n" id="stTotal">0</div><div class="stat-l">Sedes</div><div class="stat-s">Buenos Aires</div></div>
+    <div class="stat s-env"><div class="stat-n" id="stEnv">0</div><div class="stat-l">Enviadas</div><div class="stat-s">copiadas ✅</div></div>
+    <div class="stat s-pend"><div class="stat-n" id="stPend">0</div><div class="stat-l">Pendientes</div><div class="stat-s">sin enviar</div></div>
+    <div class="stat s-prog"><div class="stat-n" id="stProg">0%</div><div class="stat-l">Completado</div><div class="stat-s">envío semanal</div></div>
+    <div class="stat s-noav"><div class="stat-n" id="stNoav">—</div><div class="stat-l">Sin avance</div><div class="stat-s">vs sem. anterior</div></div>
+  </div>
+
+  <!-- PROGRESS ENVIO -->
+  <div class="pb-wrap" id="pbRow">
+    <div class="pb-row"><span>Progreso de envío semanal</span><span id="pbLabel">0 de 0</span></div>
+    <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-panel" id="resumenPanel">
+    <div class="resumen-title">📊 Resumen ejecutivo</div>
+    <div class="resumen-body" id="resumenBody"></div>
+  </div>
+
+  <!-- LISTA DE SEDES -->
+  <div class="sede-list" id="sedeList"></div>
+
+</div>
+
+<!-- MODAL ENVIO -->
+<div class="modal-bg" id="modalEnvio">
+  <div class="modal">
+    <h3>🚀 Confirmar envío de emails</h3>
+    <p id="modalDesc"></p>
+    <div class="modal-list" id="modalList"></div>
+    <div class="envio-progress" id="envioProgressWrap" style="display:none">
+      <div class="envio-progress-fill" id="envioProgressFill" style="width:0%"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-gray" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-green" id="btnConfirmarEnvio" onclick="confirmarEnvio()">✅ Enviar todos</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ════════════════════════════════════════════════════════
+var API = 'https://script.google.com/macros/s/AKfycbwSp9prKz-bEyIONAPo5DNyTcQoB4aquWvLUX7WrHGi9a9O8B5NhJyg-el9CNyQ2Ly7/exec';
+var WEBHOOK = 'https://hook.us2.make.com/3xhcn02owq56c196s0j3anawf5zesxht';
+
+// ════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ════════════════════════════════════════════════════════
+var CAMPANAS = [];
+var SEDES    = [];
+var DATA     = [];      // semana actual procesada
+var CAMPANA_ACTIVA = null;
+var COPIED   = {};      // {cod: true} emails enviados esta sesión
+var RESUMEN_VISIBLE = false;
+var NUEVA_VISIBLE = false;
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function() {
+  setLoading('Conectando con Google Sheets…');
+  apiGet('campanas').then(function(camps) {
+    CAMPANAS = camps;
+    return apiGet('sedes');
+  }).then(function(sedes) {
+    SEDES = sedes;
+    renderCampanas();
+    // Activar campaña activa por defecto
+    var activa = CAMPANAS.find(function(c){ return c.estado === 'activa'; }) || CAMPANAS[CAMPANAS.length-1];
+    if (activa) seleccionarCampana(activa.id);
+    else hideLoading();
+  }).catch(function(e) {
+    setLoading('❌ Error al conectar: ' + e.message + '\n\nVerificá que el Apps Script esté publicado.');
+  });
+});
+
+// ════════════════════════════════════════════════════════
+// API
+// ════════════════════════════════════════════════════════
+function apiGet(action, params) {
+  var url = API + '?action=' + action;
+  if (params) Object.keys(params).forEach(function(k){ url += '&' + k + '=' + encodeURIComponent(params[k]); });
+  return fetch(url).then(function(r){ return r.json(); }).then(function(r){
+    if (!r.ok) throw new Error(r.error);
+    return r.data;
+  });
+}
+
+function apiPost(body) {
+  return fetch(API, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); }).then(function(r){
+    if (!r.ok) throw new Error(r.error);
+    return r.data;
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// LOADING
+// ════════════════════════════════════════════════════════
+function setLoading(txt) {
+  document.getElementById('loadingScreen').style.display = 'flex';
+  document.getElementById('appContent').style.display = 'none';
+  document.getElementById('loadingText').textContent = txt;
+}
+function hideLoading() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('appContent').style.display = 'block';
+}
+
+// ════════════════════════════════════════════════════════
+// CAMPANAS
+// ════════════════════════════════════════════════════════
+function renderCampanas() {
+  var cont = document.getElementById('campBtns');
+  cont.innerHTML = CAMPANAS.map(function(c) {
+    var cls = c.estado === 'cerrada' ? 'cerrada' : '';
+    return '<button class="camp-btn '+cls+'" onclick="seleccionarCampana(\''+c.id+'\')" id="cbtn_'+c.id+'">' +
+      c.nombre + (c.estado === 'cerrada' ? ' 🔒' : ' ✅') + '</button>';
+  }).join('');
+}
+
+function seleccionarCampana(id) {
+  CAMPANA_ACTIVA = id;
+  document.querySelectorAll('.camp-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('cbtn_'+id);
+  if (btn) btn.classList.add('active');
+  COPIED = {};
+  DATA = [];
+  setLoading('Cargando datos de ' + id + '…');
+  apiGet('semana_actual', {campana: id}).then(function(data) {
+    DATA = data;
+    var camp = CAMPANAS.find(function(c){ return c.id === id; });
+    // Actualizar header
+    document.getElementById('hbCamp').textContent = id;
+    document.getElementById('hbDate').textContent = data.length ? fmtDate(data[0].fecha) : '—';
+    document.getElementById('hbSedes').textContent = data.length;
+    if (camp && camp.estado === 'cerrada') {
+      document.getElementById('hbCampBadge').style.background = 'rgba(107,114,128,.2)';
+    } else {
+      document.getElementById('hbCampBadge').style.background = 'rgba(82,183,136,.15)';
+    }
+    // Panel nueva semana
+    var campObj = CAMPANAS.find(function(c){ return c.id===id; });
+    document.getElementById('nuevaCampNombre').textContent = campObj ? campObj.nombre : id;
+    document.getElementById('btnNueva').style.display = campObj && campObj.estado==='cerrada' ? 'none' : '';
+    renderNuevaGrid();
+    hideLoading();
+    updateStats();
+    renderSedes();
+    renderResumen();
+  }).catch(function(e) {
+    setLoading('❌ Error: ' + e.message);
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// STATS
+// ════════════════════════════════════════════════════════
+function updateStats() {
+  var total = DATA.length;
+  var env = Object.keys(COPIED).length;
+  var pend = total - env;
+  var prog = total > 0 ? Math.round(env/total*100) : 0;
+  var noav = DATA.filter(function(d){ return d.var !== null && d.var === 0; }).length;
+  document.getElementById('stTotal').textContent = total;
+  document.getElementById('stEnv').textContent = env;
+  document.getElementById('stPend').textContent = pend;
+  document.getElementById('stProg').textContent = prog + '%';
+  document.getElementById('stNoav').textContent = noav > 0 ? noav : '—';
+  document.getElementById('pbLabel').textContent = env + ' de ' + total;
+  document.getElementById('pbFill').style.width = prog + '%';
+}
+
+// ════════════════════════════════════════════════════════
+// RENDER SEDES
+// ════════════════════════════════════════════════════════
+function getEstado(d) {
+  if (d.total === 0) return 'red';
+  if (d.pct >= 50) return 'green';
+  return 'amber';
+}
+
+function renderSedes() {
+  var filtro  = document.getElementById('filtroEstado').value;
+  var busq    = document.getElementById('busqueda').value.toLowerCase().trim();
+  var list    = document.getElementById('sedeList');
+
+  var filtered = DATA.filter(function(d) {
+    var est = getEstado(d);
+    var noav = d.var !== null && d.var === 0;
+    if (filtro === 'green'  && est !== 'green') return false;
+    if (filtro === 'amber'  && est !== 'amber') return false;
+    if (filtro === 'red'    && est !== 'red')   return false;
+    if (filtro === 'noav'   && !noav)           return false;
+    if (filtro === 'pend'   && COPIED[d.cod_sede]) return false;
+    if (filtro === 'sent'   && !COPIED[d.cod_sede]) return false;
+    if (busq && !d.sede.toLowerCase().includes(busq)) return false;
+    return true;
+  });
+
+  // Ordenar: sin ingresos al final, luego por % desc
+  filtered.sort(function(a,b) {
+    if (a.total===0 && b.total>0) return 1;
+    if (b.total===0 && a.total>0) return -1;
+    return b.pct - a.pct;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">No hay sedes que coincidan con el filtro.</div>';
+    return;
+  }
+
+  // Agrupar
+  var grupos = {
+    green: filtered.filter(function(d){ return getEstado(d)==='green'; }),
+    amber: filtered.filter(function(d){ return getEstado(d)==='amber'; }),
+    red:   filtered.filter(function(d){ return getEstado(d)==='red'; })
+  };
+
+  var html = '';
+  if (grupos.green.length) {
+    html += '<div class="grupo-header g-green">✅ En objetivo (≥50%) · ' + grupos.green.length + ' sedes ';
+    html += '<button class="btn btn-gray" style="margin-left:auto;font-size:11px;padding:3px 10px" onclick="copiarGrupo(\'green\')">📋 Copiar grupo</button></div>';
+    grupos.green.forEach(function(d){ html += renderItem(d); });
+  }
+  if (grupos.amber.length) {
+    html += '<div class="grupo-header g-amber">⚠️ En progreso · ' + grupos.amber.length + ' sedes ';
+    html += '<button class="btn btn-gray" style="margin-left:auto;font-size:11px;padding:3px 10px" onclick="copiarGrupo(\'amber\')">📋 Copiar grupo</button></div>';
+    grupos.amber.forEach(function(d){ html += renderItem(d); });
+  }
+  if (grupos.red.length) {
+    html += '<div class="grupo-header g-red">❌ Sin ingresos · ' + grupos.red.length + ' sedes ';
+    html += '<button class="btn btn-gray" style="margin-left:auto;font-size:11px;padding:3px 10px" onclick="copiarGrupo(\'red\')">📋 Copiar grupo</button></div>';
+    grupos.red.forEach(function(d){ html += renderItem(d); });
+  }
+  list.innerHTML = html;
+}
+
+function renderItem(d) {
+  var est   = getEstado(d);
+  var noav  = d.var !== null && d.var === 0;
+  var done  = COPIED[d.cod_sede] ? ' done' : '';
+  var pfill = 'pfill-' + est;
+  var varTxt = d.var === null ? '—' : (d.var > 0 ? '+'+d.var : String(d.var));
+  var varCol = d.var > 0 ? 'color:var(--green)' : d.var < 0 ? 'color:var(--red)' : 'color:var(--muted)';
+  var tag = est==='green' ? '<span class="i-tag tag-green">✅ En objetivo</span>' :
+            est==='amber' ? '<span class="i-tag tag-amber">⚠️ En progreso</span>' :
+                            '<span class="i-tag tag-red">❌ Sin ingresos</span>';
+  if (noav) tag += '<span class="i-tag tag-noav">🟠 Sin avance</span>';
+  if (done) tag += '<span class="i-tag tag-gray">✔ Enviada</span>';
+
+  return '<div class="item'+done+'" id="item_'+d.cod_sede+'">' +
+    '<div class="ihead" onclick="toggleItem(\''+d.cod_sede+'\')">' +
+      '<span class="i-cod">'+d.cod_sede+'</span>' +
+      '<span class="i-name">'+d.sede+'</span>' +
+      (noav ? '<span class="i-noav">🟠 Sin avance</span>' : '') +
+      '<span class="i-done">✔ Enviada</span>' +
+      '<span class="i-chevron">▼</span>' +
+    '</div>' +
+    '<div class="ibody">' +
+      '<div class="i-metrics">' +
+        '<div class="i-m m-blue"><div class="i-m-n">'+d.objetivo+'</div><div class="i-m-l">Objetivo</div></div>' +
+        '<div class="i-m m-'+est+'"><div class="i-m-n">'+d.total+'</div><div class="i-m-l">Ingresados</div></div>' +
+        '<div class="i-m"><div class="i-m-n">'+Math.max(0,d.objetivo-d.total)+'</div><div class="i-m-l">Faltan</div></div>' +
+        '<div class="i-m"><div class="i-m-n" style="'+varCol+'">'+varTxt+'</div><div class="i-m-l">Var. semana</div></div>' +
+      '</div>' +
+      '<div class="i-pbar"><div class="i-pfill '+pfill+'" style="width:'+Math.min(100,d.pct)+'%"></div></div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:8px">'+d.pct+'% del objetivo · '+d.email+'</div>' +
+      '<div class="i-actions">' +
+        tag +
+        '<button class="btn btn-blue" style="font-size:11px;padding:4px 10px;margin-left:auto" onclick="copiarEmail(\''+d.cod_sede+'\')">📋 Copiar email</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function toggleItem(cod) {
+  var el = document.getElementById('item_'+cod);
+  if (el) el.classList.toggle('open');
+}
+
+// ════════════════════════════════════════════════════════
+// EMAILS — COPIAR
+// ════════════════════════════════════════════════════════
+function generarEmailHTML(d) {
+  var est = getEstado(d);
+  var pct = d.pct;
+  var color = est==='green' ? '#2d6a4f' : est==='amber' ? '#b45309' : '#C8102E';
+  var emoji = est==='green' ? '✅' : est==='amber' ? '⚠️' : '❌';
+  var varTxt = d.var === null ? '' : (d.var > 0 ? ' (+'+d.var+' vs semana anterior)' : d.var < 0 ? ' ('+d.var+' vs semana anterior)' : ' (sin variación)');
+  var campObj = CAMPANAS.find(function(c){ return c.id===CAMPANA_ACTIVA; });
+  var campNombre = campObj ? campObj.nombre : CAMPANA_ACTIVA;
+
+  return '<p>'+d.saludo+':</p>' +
+    '<p>Te compartimos la actualización semanal de ingresos de tu sede correspondiente a la campaña <strong>'+campNombre+'</strong>.</p>' +
+    '<table style="border-collapse:collapse;width:100%;max-width:400px;margin:16px 0">' +
+      '<tr><td style="padding:8px 12px;background:#f8fafc;border:1px solid #e5e7eb;font-weight:600">Sede</td><td style="padding:8px 12px;border:1px solid #e5e7eb">'+d.sede+'</td></tr>' +
+      '<tr><td style="padding:8px 12px;background:#f8fafc;border:1px solid #e5e7eb;font-weight:600">Fecha</td><td style="padding:8px 12px;border:1px solid #e5e7eb">'+fmtDate(d.fecha)+'</td></tr>' +
+      '<tr><td style="padding:8px 12px;background:#f8fafc;border:1px solid #e5e7eb;font-weight:600">Ingresados</td><td style="padding:8px 12px;border:1px solid #e5e7eb"><strong>'+d.total+'</strong>'+varTxt+'</td></tr>' +
+      '<tr><td style="padding:8px 12px;background:#f8fafc;border:1px solid #e5e7eb;font-weight:600">Objetivo</td><td style="padding:8px 12px;border:1px solid #e5e7eb">'+d.objetivo+'</td></tr>' +
+      '<tr><td style="padding:8px 12px;background:#f8fafc;border:1px solid #e5e7eb;font-weight:600">Cumplimiento</td><td style="padding:8px 12px;border:1px solid #e5e7eb;color:'+color+';font-weight:700">'+emoji+' '+pct+'%</td></tr>' +
+    '</table>' +
+    '<p>Quedamos a disposición ante cualquier consulta.</p>' +
+    '<p>Saludos,<br>Dirección Operativa SEAD – UCASAL Buenos Aires</p>';
+}
+
+function copiarEmail(cod) {
+  var d = DATA.find(function(x){ return String(x.cod_sede)===String(cod); });
+  if (!d) return;
+  var html = generarEmailHTML(d);
+  copiarAlPortapapeles(html, function() {
+    COPIED[cod] = true;
+    updateStats();
+    var el = document.getElementById('item_'+cod);
+    if (el) el.classList.add('done');
+    renderSedes();
+    toast('✅ Email de '+d.sede+' copiado');
+  });
+}
+
+function copiarGrupo(grupo) {
+  var items = DATA.filter(function(d){ return getEstado(d)===grupo && !COPIED[d.cod_sede]; });
+  if (!items.length) { toast('No hay sedes pendientes en este grupo'); return; }
+  var html = items.map(function(d){ return generarEmailHTML(d); }).join('<hr>');
+  copiarAlPortapapeles(html, function() {
+    items.forEach(function(d){ COPIED[d.cod_sede]=true; });
+    updateStats(); renderSedes();
+    toast('✅ '+items.length+' emails copiados');
+  });
+}
+
+function copiarSeleccion() {
+  var filtro = document.getElementById('filtroEstado').value;
+  var pend = DATA.filter(function(d){
+    return !COPIED[d.cod_sede] && (!filtro || filtro==='pend' ||
+      (filtro==='green' && getEstado(d)==='green') ||
+      (filtro==='amber' && getEstado(d)==='amber') ||
+      (filtro==='red'   && getEstado(d)==='red'));
+  });
+  if (!pend.length) { toast('No hay sedes pendientes'); return; }
+  var html = pend.map(function(d){ return generarEmailHTML(d); }).join('<hr>');
+  copiarAlPortapapeles(html, function() {
+    pend.forEach(function(d){ COPIED[d.cod_sede]=true; });
+    updateStats(); renderSedes();
+    toast('✅ '+pend.length+' emails copiados');
+  });
+}
+
+function copiarAlPortapapeles(html, cb) {
+  var blob = new Blob([html], {type:'text/html'});
+  var item = new ClipboardItem({'text/html':blob});
+  navigator.clipboard.write([item]).then(cb).catch(function() {
+    // fallback texto plano
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    navigator.clipboard.writeText(tmp.innerText).then(cb);
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// ENVÍO POR MAKE
+// ════════════════════════════════════════════════════════
+function abrirModalEnvio() {
+  var pend = DATA.filter(function(d){ return !COPIED[d.cod_sede]; });
+  if (!pend.length) { toast('Todas las sedes ya fueron enviadas'); return; }
+  document.getElementById('modalDesc').textContent =
+    'Se van a enviar ' + pend.length + ' emails desde mcrossi@ucasal.edu.ar vía Make.';
+  document.getElementById('modalList').innerHTML = pend.map(function(d){
+    return '<div class="modal-list-item"><span>'+d.sede+'</span><span style="color:var(--muted);font-size:11px">'+d.email+'</span></div>';
+  }).join('');
+  document.getElementById('modalEnvio').classList.add('visible');
+}
+
+function cerrarModal() {
+  document.getElementById('modalEnvio').classList.remove('visible');
+  document.getElementById('envioProgressWrap').style.display = 'none';
+  document.getElementById('envioProgressFill').style.width = '0%';
+  document.getElementById('btnConfirmarEnvio').disabled = false;
+  document.getElementById('btnConfirmarEnvio').textContent = '✅ Enviar todos';
+}
+
+function confirmarEnvio() {
+  var pend = DATA.filter(function(d){ return !COPIED[d.cod_sede]; });
+  if (!pend.length) { cerrarModal(); return; }
+
+  document.getElementById('btnConfirmarEnvio').disabled = true;
+  document.getElementById('btnConfirmarEnvio').textContent = 'Enviando…';
+  document.getElementById('envioProgressWrap').style.display = 'block';
+
+  var campObj = CAMPANAS.find(function(c){ return c.id===CAMPANA_ACTIVA; });
+  var total = pend.length;
+  var enviados = 0;
+
+  function enviarSiguiente(i) {
+    if (i >= pend.length) {
+      document.getElementById('envioProgressFill').style.width = '100%';
+      toast('✅ '+enviados+' emails enviados correctamente');
+      setTimeout(cerrarModal, 1500);
+      return;
+    }
+    var d = pend[i];
+    var payload = {
+      sede:     d.sede,
+      email:    d.email,
+      saludo:   d.saludo,
+      total:    d.total,
+      objetivo: d.objetivo,
+      pct:      d.pct,
+      var:      d.var,
+      fecha:    d.fecha,
+      campana:  campObj ? campObj.nombre : CAMPANA_ACTIVA
+    };
+    fetch(WEBHOOK, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(function() {
+      COPIED[d.cod_sede] = true;
+      enviados++;
+      var pct = Math.round(enviados/total*100);
+      document.getElementById('envioProgressFill').style.width = pct+'%';
+      document.getElementById('btnConfirmarEnvio').textContent = 'Enviando '+enviados+'/'+total+'…';
+      updateStats();
+    }).catch(function(e) {
+      console.warn('Error enviando a '+d.sede+':', e);
+    }).finally(function() {
+      enviarSiguiente(i+1);
+    });
+  }
+
+  enviarSiguiente(0);
+}
+
+// ════════════════════════════════════════════════════════
+// NUEVA SEMANA
+// ════════════════════════════════════════════════════════
+function toggleNuevaSemana() {
+  NUEVA_VISIBLE = !NUEVA_VISIBLE;
+  document.getElementById('nuevaPanel').classList.toggle('visible', NUEVA_VISIBLE);
+  if (NUEVA_VISIBLE) {
+    // Fecha por defecto: hoy
+    var hoy = new Date();
+    document.getElementById('nuevaFecha').value = hoy.toISOString().slice(0,10);
+  }
+}
+
+function renderNuevaGrid() {
+  var grid = document.getElementById('nuevaGrid');
+  grid.innerHTML = DATA.map(function(d) {
+    return '<div class="nueva-item">' +
+      '<label title="'+d.sede+'">'+d.sede+'</label>' +
+      '<input type="number" min="0" id="ns_'+d.cod_sede+'" value="'+d.total+'">' +
+    '</div>';
+  }).join('');
+}
+
+function copiarDeUltimaSemana() {
+  DATA.forEach(function(d) {
+    var inp = document.getElementById('ns_'+d.cod_sede);
+    if (inp) inp.value = d.total;
+  });
+  toast('Valores copiados de la semana anterior');
+}
+
+function guardarNuevaSemana() {
+  var fecha = document.getElementById('nuevaFecha').value;
+  if (!fecha) { toast('Seleccioná una fecha'); return; }
+  var campObj = CAMPANAS.find(function(c){ return c.id===CAMPANA_ACTIVA; });
+  if (!campObj) return;
+
+  var sedes = DATA.map(function(d) {
+    var val = parseInt(document.getElementById('ns_'+d.cod_sede).value) || 0;
+    return { cod: d.cod_sede, sede: d.sede, total: val };
+  });
+
+  document.getElementById('btnGuardarSemana').disabled = true;
+  document.getElementById('nuevaStatus').textContent = 'Guardando en Sheets…';
+
+  apiPost({
+    action: 'agregar_semana',
+    campana_id: CAMPANA_ACTIVA,
+    campana_nombre: campObj.nombre,
+    fecha: fecha,
+    sedes: sedes
+  }).then(function(res) {
+    document.getElementById('nuevaStatus').textContent = '✅ '+res.insertadas+' filas guardadas';
+    document.getElementById('btnGuardarSemana').disabled = false;
+    toast('✅ Semana del '+fmtDate(fecha)+' guardada en Sheets');
+    toggleNuevaSemana();
+    // Recargar datos
+    seleccionarCampana(CAMPANA_ACTIVA);
+  }).catch(function(e) {
+    document.getElementById('nuevaStatus').textContent = '❌ '+e.message;
+    document.getElementById('btnGuardarSemana').disabled = false;
+    toast('❌ Error: '+e.message);
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// RESUMEN EJECUTIVO
+// ════════════════════════════════════════════════════════
+function toggleResumen() {
+  RESUMEN_VISIBLE = !RESUMEN_VISIBLE;
+  document.getElementById('resumenPanel').classList.toggle('visible', RESUMEN_VISIBLE);
+  if (RESUMEN_VISIBLE) renderResumen();
+}
+
+function renderResumen() {
+  if (!DATA.length) return;
+  var campObj = CAMPANAS.find(function(c){ return c.id===CAMPANA_ACTIVA; });
+  var totTotal=0, totObj=0;
+  var enObj=[], enProg=[], sinIng=[], sinAv=[];
+  DATA.forEach(function(d) {
+    totTotal += d.total; totObj += d.objetivo;
+    var est = getEstado(d);
+    if (est==='green') enObj.push(d);
+    else if (est==='amber') enProg.push(d);
+    else sinIng.push(d);
+    if (d.var !== null && d.var === 0) sinAv.push(d);
+  });
+  var pctGlobal = totObj>0 ? Math.round(totTotal/totObj*100) : 0;
+  var fecha = DATA[0] ? fmtDate(DATA[0].fecha) : '';
+
+  var txt = '<strong>Campaña:</strong> '+(campObj?campObj.nombre:CAMPANA_ACTIVA)+' · Corte: '+fecha+'<br><br>';
+  txt += '<strong>Total BsAs:</strong> '+totTotal+' ingresados sobre '+totObj+' objetivo ('+pctGlobal+'% global)<br><br>';
+  txt += '<strong>✅ En objetivo ('+enObj.length+'):</strong> '+enObj.map(function(d){return d.sede+' '+d.pct+'%';}).join(' | ')+'<br><br>';
+  txt += '<strong>⚠️ En progreso ('+enProg.length+'):</strong> '+enProg.map(function(d){return d.sede+' '+d.pct+'%';}).join(' | ')+'<br><br>';
+  txt += '<strong>❌ Sin ingresos ('+sinIng.length+'):</strong> '+sinIng.map(function(d){return d.sede;}).join(' | ')+'<br>';
+  if (sinAv.length) txt += '<br><strong>🟠 Sin avance vs semana anterior ('+sinAv.length+'):</strong> '+sinAv.map(function(d){return d.sede;}).join(', ');
+
+  document.getElementById('resumenBody').innerHTML = txt;
+}
+
+// ════════════════════════════════════════════════════════
+// EXCEL EXPORT
+// ════════════════════════════════════════════════════════
+function exportarExcel() {
+  if (!DATA.length) { toast('No hay datos para exportar'); return; }
+  var rows = [['Sede','Código','Objetivo','Ingresados','Faltan','Var.','Cumplimiento %','Email','Estado']];
+  DATA.forEach(function(d) {
+    var est = getEstado(d);
+    rows.push([d.sede, d.cod_sede, d.objetivo, d.total, Math.max(0,d.objetivo-d.total),
+      d.var!==null?d.var:'', d.pct,
+      d.email,
+      est==='green'?'En objetivo':est==='amber'?'En progreso':'Sin ingresos']);
+  });
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'BsAs');
+  var campObj = CAMPANAS.find(function(c){ return c.id===CAMPANA_ACTIVA; });
+  var fname = 'UCASAL_ComoVamos_'+(CAMPANA_ACTIVA||'')+'_'+(DATA[0]?DATA[0].fecha:'')+'.xlsx';
+  XLSX.writeFile(wb, fname);
+  toast('✅ Excel descargado');
+}
+
+// ════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════
+function fmtDate(iso) {
+  if (!iso) return '';
+  var p = String(iso).slice(0,10).split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
